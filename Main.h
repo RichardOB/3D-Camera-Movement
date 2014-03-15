@@ -103,15 +103,15 @@ GLfloat zRot = 0.0f;
 /*
  * Move on the x axis by: 
  */
-GLfloat xMove = -0.5f;
+GLfloat xMove = 0.0f;
 /*
  * Move on the x axis by: 
  */
-GLfloat yMove = -0.5f;
+GLfloat yMove = 0.0f;
 /*
  * Move on the x axis by: 
  */
-GLfloat zMove = -0.5f;
+GLfloat zMove = 0.0f;
 
 //VIEW MATRIX VARIABLES
 

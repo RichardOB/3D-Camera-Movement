@@ -18,15 +18,28 @@ void display ()
 	 * 3. Type of variable stored in the array
 	 * 4. Pointer to the actual index array (leave as null to get the bound GL_ELEMENT_ARRAY_BUFFER instead)
 	 */
-	glBindVertexArray(cube);
-	
-	glDrawElements(GL_TRIANGLES, INDEX_ARRAY_SIZE, GL_UNSIGNED_INT, 0);
+	for (int j = 0; j < 8; j++)
+	{
+		for (int i = 0; i < 8; i++)
+		{
+			xMove = 8.0f * (float)i;
+			zMove = 8.0f * (float)j;
+			updateWorld();
+			glDrawElements(GL_TRIANGLES, INDEX_ARRAY_SIZE, GL_UNSIGNED_INT, 0);
+		}
+		
+		xMove = 0.0f;
+		updateWorld();
+	}
 	
 	//Instruct OpenGL to send all our commands to the graphics card (if it hasn't done so already)
 	glFlush();
 	
 	//Swap the buffers. i.e. we write to one while other displays to prevent "screen tearing" where half of the old pixels still remain.
 	glutSwapBuffers();
+	
+	xMove = 0.0f;
+	updateWorld();
 	
 	printFPS();
 	
