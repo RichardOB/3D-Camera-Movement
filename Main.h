@@ -103,27 +103,27 @@ GLfloat zRot = 0.0f;
 /*
  * Move on the x axis by: 
  */
-GLfloat xMove = 0.0f;
+GLfloat xMove = -0.5f;
 /*
  * Move on the x axis by: 
  */
-GLfloat yMove = 0.0f;
+GLfloat yMove = -0.5f;
 /*
  * Move on the x axis by: 
  */
-GLfloat zMove = 0.0f;
+GLfloat zMove = -0.5f;
 
 //VIEW MATRIX VARIABLES
 
  /*
  * The position of the camera
  */
- vec3 cameraEye(2,2,2); 
+ vec3 cameraEye(0,2,0); 
  
  /*
  * The direction (vector) the camera is looking
  */
- vec3 cameraAt(0,0,0);
+ vec3 cameraAt(64,1,-64);
  
  /*
  * The up direction (vector) for the camera
@@ -134,7 +134,7 @@ GLfloat zMove = 0.0f;
  /* 
   * Vertical field-of-view. 
   */
-GLfloat FOVY = 60.0f;
+GLfloat FOVY = 45.0f;
 
 /* 
  * Near clipping plane. 

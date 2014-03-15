@@ -23,7 +23,7 @@ void display ()
 		for (int i = 0; i < 8; i++)
 		{
 			xMove = 8.0f * (float)i;
-			zMove = 8.0f * (float)j;
+			zMove = -8.0f * (float)j;
 			updateWorld();
 			glDrawElements(GL_TRIANGLES, INDEX_ARRAY_SIZE, GL_UNSIGNED_INT, 0);
 		}
@@ -1046,7 +1046,7 @@ int main (int argc, char** argv)
 	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
 	
 	glutInitWindowSize(640, 480); //Size of the window we would like
-	glutCreateWindow("COS344_Practical_3");//Set title of the window
+	glutCreateWindow("COS344_Assignment_1");//Set title of the window
 	
 	glutDisplayFunc(display); //Register Display Event/ Callback
 	glutKeyboardFunc(keyboard);
