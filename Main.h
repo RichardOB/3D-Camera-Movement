@@ -24,15 +24,15 @@ using glm::value_ptr; //conversion of matrices to format that shaders expect
 
 const int KEY_ESCAPE = 27;
 
-/**faces on a cube. */
-const GLuint FACES = 6;
-/** Number of triangles on a face */
+/**Squares on chessboard. */
+const GLuint FACES = 4096;
+/** Number of triangles per square */
 const GLuint TRIANGLES_PER_FACE = 2;
 /** Number of vertices in a triangle. */
 const GLuint VERTICES_PER_TRIANGLE = 3;
 /** Number of indices used for drawing a cube. */
 const GLuint INDICES= FACES * TRIANGLES_PER_FACE * 
-   VERTICES_PER_TRIANGLE;
+   VERTICES_PER_TRIANGLE; //384
 /** The size of the index array. */
 const GLuint INDEX_ARRAY_SIZE = INDICES;
 
@@ -41,9 +41,9 @@ const GLuint DIMENSIONS = 3;
 /** The amount of components in our colour vectors.(RGB). */
 const GLuint COLOUR_COMPONENT_COUNT = 3;
 /** The size of an individual vertex. */
-const GLuint VERTEX_SIZE = DIMENSIONS;
-/** The amount of vertices in a cube. */
-const GLuint VERTEX_COUNT = 8;
+const GLuint VERTEX_SIZE = DIMENSIONS + COLOUR_COMPONENT_COUNT;
+/** The amount of vertices in a chessboard. */
+const GLuint VERTEX_COUNT = 16384;
 /** The size of the vertex array. */
 const GLuint VERTEX_ARRAY_SIZE = VERTEX_COUNT * VERTEX_SIZE;
 
@@ -309,6 +309,7 @@ void loadShaderProgram(unsigned&, const char*, GLenum);
  */
 void loadGeometry();
 
+void drawBoard2();
 /*
  * Load Chess Board Mesh
  */

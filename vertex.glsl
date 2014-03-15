@@ -21,6 +21,7 @@ void main() //shader program's entry point
 	gl_Position = projection * view * world * vec4(position, 1.0f);
 	
 	v_colour = colour;//send colour on its way since this is just a Pass-through Shader.
+	//v_colour = vec3(1.0f, 1.0f, 1.0f);
 }
 
 /* Vertex Shader.

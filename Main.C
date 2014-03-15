@@ -18,6 +18,8 @@ void display ()
 	 * 3. Type of variable stored in the array
 	 * 4. Pointer to the actual index array (leave as null to get the bound GL_ELEMENT_ARRAY_BUFFER instead)
 	 */
+	glBindVertexArray(cube);
+	
 	glDrawElements(GL_TRIANGLES, INDEX_ARRAY_SIZE, GL_UNSIGNED_INT, 0);
 	
 	//Instruct OpenGL to send all our commands to the graphics card (if it hasn't done so already)
@@ -134,7 +136,6 @@ void keyboard(unsigned char key, int x, int y)
 	
 	updateWorld();
 	updateProjection(WINDOW_WIDTH, WINDOW_HEIGHT);
-
 	glutPostRedisplay();
 
 }
@@ -497,7 +498,131 @@ void loadShaderProgram(unsigned& handle, const char* file, GLenum shaderType)
 
 void loadGeometry()
 {
-	loadCube();
+	//loadCube();
+	drawBoard2();
+}
+
+void drawBoard2()
+{
+	
+    GLfloat* vertices = new GLfloat[VERTEX_ARRAY_SIZE];
+   int i = 0;
+   float pX = 0.0f;
+   float pZ = 0.0f;
+   
+   float k = 0.0f;
+	
+	#pragma GCC diagnostic push
+	#pragma GCC diagnostic ignored "-Wfloat-equal"
+	for (int l = 0; l < 8; l++)
+	{
+		for (int j = 0; j < 8; j++)
+		{
+
+			vertices[i++] = pX;
+			vertices[i++] = 0.0f; // 0,0,0; 1,0,0; 2,0,0; 3,0,0 etc
+			vertices[i++] = pZ;
+			vertices[i++] = k;
+			vertices[i++] = k;
+			vertices[i++] = k;
+		
+			vertices[i++] = (pX + 1.0f);
+			vertices[i++] = 0.0f; // 1,0,0; 2,0,0; 3,0,0; 4,0,0 etc
+			vertices[i++] = pZ;
+			vertices[i++] = k;
+			vertices[i++] = k;
+			vertices[i++] = k;
+		
+			vertices[i++] = pX;
+			vertices[i++] = 0.0f;//0,0,-1; 1,0,-1; 2,0,-1; 3,0,-1 etc
+			vertices[i++] = pZ -1.0f;
+			vertices[i++] = k;
+			vertices[i++] = k;
+			vertices[i++] = k;
+		   
+			vertices[i++] = (pX + 1.0f);
+			vertices[i++] = 0.0f;//1,0,-1; 2,0,-1; 3,0,-1; 4,0,-1 etc
+			vertices[i++] = pZ -1.0f;
+			vertices[i++] = k;
+			vertices[i++] = k;
+			vertices[i++] = k;
+			
+			if (k == 0.0f)
+			{
+				k = 1.0f;
+			}
+			else
+			{
+				k = 0.0f;
+			}
+			
+			pX = pX + 1.0f;
+		}
+		
+		if (k == 0.0f)
+			{
+				k = 1.0f;
+			}
+			else
+			{
+				k = 0.0f;
+			}
+		
+		pZ = pZ - 1.0f;
+		pX = 0.0f;
+	}
+   
+    cout << endl;
+	#pragma GCC diagnostic pop
+
+   GLuint* indices = new GLuint[INDEX_ARRAY_SIZE];
+   i = 0;
+	
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wsign-conversion"
+   for (int l = 0; l < 8; l++)
+   {
+	   for (int j = 0; j < 64; j++)
+	   {
+		indices[i++] = 0 + (4*j) + 32*l*8;
+		indices[i++] = 3 + (4*j) + 32*l*8;
+		indices[i++] = 2 + (4*j) + 32*l*8;
+		indices[i++] = 0 + (4*j) + 32*l*8;
+		indices[i++] = 1 + (4*j) + 32*l*8;
+		indices[i++] = 3 + (4*j) + 32*l*8;
+	   }
+   }
+    #pragma GCC diagnostic pop
+   
+
+
+   /* Declare our handles. */
+   GLuint vertexBuffer, indexBuffer;
+
+   glGenVertexArrays(1, &cube);
+   glBindVertexArray(cube);
+
+   glGenBuffers(1, &vertexBuffer);
+   glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
+
+   glBufferData(GL_ARRAY_BUFFER, VERTEX_ARRAY_SIZE * (int)sizeof(GLfloat),
+         vertices, GL_STATIC_DRAW);
+
+   glGenBuffers(1, &indexBuffer);
+   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBuffer);
+
+   glBufferData(GL_ELEMENT_ARRAY_BUFFER, INDEX_ARRAY_SIZE * (int)sizeof(GLuint),
+         indices, GL_STATIC_DRAW);
+
+   glEnableVertexAttribArray((GLuint)positionLoc);
+   glVertexAttribPointer((GLuint)positionLoc, DIMENSIONS, GL_FLOAT, GL_FALSE, 
+         VERTEX_SIZE * (int)sizeof(GLfloat), 0);
+	 
+	 glEnableVertexAttribArray((GLuint)colourLoc);
+	glVertexAttribPointer((GLuint)colourLoc, COLOUR_COMPONENT_COUNT, GL_FLOAT, 
+         GL_FALSE,
+         VERTEX_SIZE * (int)sizeof(GLfloat),
+         (void*)(DIMENSIONS* (int)sizeof(GLfloat)));
 }
 
 void drawBoard()
@@ -506,19 +631,20 @@ void drawBoard()
 	GLfloat* vertices = new GLfloat[VERTEX_ARRAY_SIZE];
 	int i = 0;
 	
-	pZ = 0.0f;
-	pX = 0.0f;
+	float pZ = 0.0f;
+	float pX = 0.0f;
 	
 	//Fill vertices array
-	for(zPos = 0; zPos <= 8; zPos++)
+	for(int zPos = 0; zPos <= 8; zPos++)
 	{
-		for(xPos = 0; xPos <=8; xPos++)
+		for(int xPos = 0; xPos <=8; xPos++)
 		{
 			vertices[i++] = pX;
 			vertices[i++] = 0.0f;
 			vertices[i++] = pZ;
 			
 			pX = pX + 1.0f;
+			cout << i << endl;
 		}
 		
 		pZ = pZ + 1.0f;;
@@ -528,10 +654,12 @@ void drawBoard()
 	GLuint* indices = new GLuint[INDEX_ARRAY_SIZE];
 	i = 0;
 	
+	#pragma GCC diagnostic push
+	#pragma GCC diagnostic ignored "-Wsign-conversion"
 	//Fill indices array
 	for(int row = 0; row < 8; row++)
 	{
-		for(int col = (9*col); i < ((9*col) + 8); i++)
+		for(int col = (9*col); col < ((9*col) + 8); col++)
 		{
 			//first triangle
 			indices[i++] = col;
@@ -544,6 +672,56 @@ void drawBoard()
 			indices[i++] = col + 9;
 		}
 	}
+	#pragma GCC diagnostic pop
+	
+	//Possible Colours
+	GLfloat* colours = new GLfloat[6];
+	i = 0;
+	
+	GLfloat c = 0.0f;
+	
+	for (int j = 0; j < 2; j++)
+	{
+		colours[i++] = c;
+		colours[i++] = c;
+		colours[i++] = c;
+		
+		c = c + 1.0f;
+	}
+	
+	//Indices array for colours. Index per position vertex. i.e. 3 per triangle
+	GLuint* colourIndices = new GLuint[INDEX_ARRAY_SIZE];
+	i = 0;
+	
+	int colourPos = 0;
+	
+	#pragma GCC diagnostic push
+	#pragma GCC diagnostic ignored "-Wsign-conversion"
+	for(int row = 0; row < 8; row++)
+	{
+		for(int col = 0; col < 8; col++)
+		{
+			//first triangle
+			colourIndices[i++] = colourPos;
+			colourIndices[i++] = colourPos;
+			colourIndices[i++] = colourPos;
+			
+			//Second triangle
+			colourIndices[i++] = colourPos;
+			colourIndices[i++] = colourPos;
+			colourIndices[i++] = colourPos;
+			
+			if (colourPos == 0)
+			{
+				colourPos = 1;
+			}
+			else
+			{
+				colourPos = 0;
+			}
+		}
+	}
+	#pragma GCC diagnostic pop
 	
 	/*Create our Vertex Attribute Array Object (Mesh "Object")
 	 * 1. Number of Meshes (VAOs) we want
@@ -563,14 +741,17 @@ void drawBoard()
 	* the vertex data into buffers. This is because we need an object (or a "class", depending on how you look at it)
 	* to handle writing all this data to the GPU and keeping track of it in memory etc.*/
 	
+	/*SET UP POSITION BUFFERS */
+	//--------------------------------------------*/
+	
 	//Create handle for buffer
-	GLuint indexBuffer, vertexBuffer;
+	GLuint posIndexBuffer, posVertexBuffer;
 	
 	//Create an openGL object called a Buffer Object
-	glGenBuffers(1, &indexBuffer);
+	glGenBuffers(1, &posIndexBuffer);
 	//clamp the buffer object with the  target: GL_ELEMENT_ARRAY_BUFFER clamp. 
 	//This clamp (or "target" as openGL calls them) is used to specify things for our mesh.
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBuffer);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, posIndexBuffer);
 	
 	/*load data into our buffer
 	 * 1. Specify which "clamp" to load data into
@@ -580,8 +761,8 @@ void drawBoard()
 	 */
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, (GLsizeiptr)(INDEX_ARRAY_SIZE * sizeof(GLuint)), indices, GL_STATIC_DRAW);
 	
-	glGenBuffers(1, &vertexBuffer);
-	glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
+	glGenBuffers(1, &posVertexBuffer);
+	glBindBuffer(GL_ARRAY_BUFFER, posVertexBuffer);
 	
 	/*Now we need to SPECIFY THE FORMAT of the data we just loaded into the buffer [VERY IMPORTANT]*/
 	
@@ -598,6 +779,34 @@ void drawBoard()
 	 * 6. The offset (which is where the data we are passing in starts
 	 */
 	glVertexAttribPointer((GLuint)positionLoc, DIMENSIONS, GL_FLOAT, GL_FALSE, (GLsizei)(VERTEX_SIZE * sizeof(GLfloat)), 0);
+	
+	
+	/*SET UP COLOUR BUFFERS */
+	//--------------------------------------------*/
+	
+	//Create handle for buffer
+	GLuint colIndexBuffer, colVertexBuffer;
+	
+	//Create an openGL object called a Buffer Object
+	glGenBuffers(1, &colIndexBuffer);
+	//clamp the buffer object with the  target: GL_ELEMENT_ARRAY_BUFFER clamp. 
+	//This clamp (or "target" as openGL calls them) is used to specify things for our mesh.
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, colIndexBuffer);
+	
+	/*load data into our buffer
+	 * 1. Specify which "clamp" to load data into
+	 * 2. How much data (in bytes) we are loading into buffer i.e. size of  index array * amount of bytes taken up by the data type it stores [which is integer values values in this case]
+	 * 3. Provide the array from which we will load the actual data
+	 * 4. Give openGL a hint as to what we are going to do with the buffer. Since we arent going to read from it, or modify it, we will go with GL_STATIC_DRAW
+	 */
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, (GLsizeiptr)(INDEX_ARRAY_SIZE * sizeof(GLuint)), colourIndices, GL_STATIC_DRAW);
+	
+	glGenBuffers(1, &colVertexBuffer);
+	glBindBuffer(GL_ARRAY_BUFFER, colVertexBuffer);
+	
+	/*Now we need to SPECIFY THE FORMAT of the data we just loaded into the buffer [VERY IMPORTANT]*/
+	
+	glBufferData(GL_ARRAY_BUFFER, (GLsizeiptr)(6 * sizeof(GLfloat)), colours, GL_STATIC_DRAW);
 	
 	glEnableVertexAttribArray((GLuint)colourLoc);
 	/* Provide some input for the position attribute
