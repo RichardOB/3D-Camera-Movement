@@ -163,9 +163,13 @@ GLuint fragmentShader;
  */
 GLuint program;
 
+/*
+ *Handle for the board (8x8)
+ */
+GLuint board;
 
 /*
- *Handle for the red triangle. 
+ *Handle for the cube
  */
 GLuint cube;
 
@@ -304,6 +308,11 @@ void loadShaderProgram(unsigned&, const char*, GLenum);
  * Load all of the geometry meshes?
  */
 void loadGeometry();
+
+/*
+ * Load Chess Board Mesh
+ */
+void drawBoard();
 
 /*
  * Load Cube Mesh?

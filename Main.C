@@ -500,6 +500,119 @@ void loadGeometry()
 	loadCube();
 }
 
+void drawBoard()
+{
+	//TODO: Set up alternating colour somehow....
+	GLfloat* vertices = new GLfloat[VERTEX_ARRAY_SIZE];
+	int i = 0;
+	
+	pZ = 0.0f;
+	pX = 0.0f;
+	
+	//Fill vertices array
+	for(zPos = 0; zPos <= 8; zPos++)
+	{
+		for(xPos = 0; xPos <=8; xPos++)
+		{
+			vertices[i++] = pX;
+			vertices[i++] = 0.0f;
+			vertices[i++] = pZ;
+			
+			pX = pX + 1.0f;
+		}
+		
+		pZ = pZ + 1.0f;;
+		pX = 0.0f;
+	}
+	
+	GLuint* indices = new GLuint[INDEX_ARRAY_SIZE];
+	i = 0;
+	
+	//Fill indices array
+	for(int row = 0; row < 8; row++)
+	{
+		for(int col = (9*col); i < ((9*col) + 8); i++)
+		{
+			//first triangle
+			indices[i++] = col;
+			indices[i++] = col + 1;
+			indices[i++] = col + 9;
+			
+			//Second triangle
+			indices[i++] = col + 1;
+			indices[i++] = col + 10;
+			indices[i++] = col + 9;
+		}
+	}
+	
+	/*Create our Vertex Attribute Array Object (Mesh "Object")
+	 * 1. Number of Meshes (VAOs) we want
+	 * 2. Where to store their handle(s) (Array of GLuints or unsigned ints [or single])
+	 */
+	glGenVertexArrays(1, &board);
+	
+	//Now set the mesh (VAO) we have just created to be the one currently in use
+	glBindVertexArray(board);
+	
+	/*Now that our mesh is set as the current one, we can start to modify it. Think of the bind function
+		as the process of putting something into a desk clamp - once we have the mesh firmly
+			between its metal pincers, we are free to start cutting and measuring to our
+								hearts' content.*/
+								
+	/*Before we can set up the vertex arrays that will be associated with this mesh, we're going to put
+	* the vertex data into buffers. This is because we need an object (or a "class", depending on how you look at it)
+	* to handle writing all this data to the GPU and keeping track of it in memory etc.*/
+	
+	//Create handle for buffer
+	GLuint indexBuffer, vertexBuffer;
+	
+	//Create an openGL object called a Buffer Object
+	glGenBuffers(1, &indexBuffer);
+	//clamp the buffer object with the  target: GL_ELEMENT_ARRAY_BUFFER clamp. 
+	//This clamp (or "target" as openGL calls them) is used to specify things for our mesh.
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBuffer);
+	
+	/*load data into our buffer
+	 * 1. Specify which "clamp" to load data into
+	 * 2. How much data (in bytes) we are loading into buffer i.e. size of  index array * amount of bytes taken up by the data type it stores [which is integer values values in this case]
+	 * 3. Provide the array from which we will load the actual data
+	 * 4. Give openGL a hint as to what we are going to do with the buffer. Since we arent going to read from it, or modify it, we will go with GL_STATIC_DRAW
+	 */
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, (GLsizeiptr)(INDEX_ARRAY_SIZE * sizeof(GLuint)), indices, GL_STATIC_DRAW);
+	
+	glGenBuffers(1, &vertexBuffer);
+	glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
+	
+	/*Now we need to SPECIFY THE FORMAT of the data we just loaded into the buffer [VERY IMPORTANT]*/
+	
+	glBufferData(GL_ARRAY_BUFFER, (GLsizeiptr)(VERTEX_ARRAY_SIZE * sizeof(GLfloat)), vertices, GL_STATIC_DRAW);
+	
+	//We need to enable the position input so that openGL knows we intend to provide some input.
+	glEnableVertexAttribArray((GLuint)positionLoc);
+	/* Provide some input for the position attribute
+	 * 1. The input we are providing
+	 * 2. The amount of components for each vertex (each vertex has exactly three components in its position)
+	 * 3. Data type of our input
+	 * 4. Flag indicating whether the data provided is normalised
+	 * 5. Stride (The length of a step from one vertex to another)in bytes
+	 * 6. The offset (which is where the data we are passing in starts
+	 */
+	glVertexAttribPointer((GLuint)positionLoc, DIMENSIONS, GL_FLOAT, GL_FALSE, (GLsizei)(VERTEX_SIZE * sizeof(GLfloat)), 0);
+	
+	glEnableVertexAttribArray((GLuint)colourLoc);
+	/* Provide some input for the position attribute
+	 * 1. The input we are providing
+	 * 2. The amount of components for each vertex (each vertex has exactly three components in its colour)
+	 * 3. Data type of our input
+	 * 4. Flag indicating whether the data provided is normalised
+	 * 5. Stride (The length of a step from one vertex to another)in bytes
+	 * 6. The offset (which is where the data we are passing in starts
+	 */
+	glVertexAttribPointer((GLuint)colourLoc, COLOUR_COMPONENT_COUNT, GL_FLOAT, GL_FALSE, (GLsizei)(VERTEX_SIZE * sizeof(GLfloat)), 0);
+	
+	delete [] vertices;
+}
+
 void loadCube()
 {
 	GLfloat* vertices = new GLfloat[VERTEX_ARRAY_SIZE];
