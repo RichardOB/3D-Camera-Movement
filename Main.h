@@ -118,12 +118,12 @@ GLfloat zMove = 0.0f;
  /*
  * The position of the camera
  */
- vec3 cameraEye(2,2,2); 
+ vec3 cameraEye(0,2,0); 
  
  /*
  * The direction (vector) the camera is looking
  */
- vec3 cameraAt(0,0,0);
+ vec3 cameraAt(64,0,-64);
  
  /*
  * The up direction (vector) for the camera

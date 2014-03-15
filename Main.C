@@ -23,7 +23,7 @@ void display ()
 		for (int i = 0; i < 8; i++)
 		{
 			xMove = 8.0f * (float)i;
-			zMove = 8.0f * (float)j;
+			zMove = -8.0f * (float)j;
 			updateWorld();
 			glDrawElements(GL_TRIANGLES, INDEX_ARRAY_SIZE, GL_UNSIGNED_INT, 0);
 		}
