@@ -60,15 +60,65 @@ void keyboard(unsigned char key, int x, int y)
 	
 	switch (key)
 	{
+	       case 'h':
+		        cout << "CONTROLS: " << endl;
+			cout << endl;
+			cout << "w: Forward" << endl;
+			cout << "s: Backward" << endl;
+			cout << "a: Left" << endl;
+			cout << "d: Right" << endl;
+			cout << "z: Position camera at default position" << endl;
+			cout << "x: Bird's Eye View" << endl;
+			cout << "c: First Person View" << endl;
+			cout << "h: help" << endl;
+			cout << endl;
+	       break;
+	       
 	       case 'z':
 		xScale = yScale = zScale = 1.0f;
 		xRot = yRot = zRot = 0.0f;
 		xMove = yMove = zMove = -0.5f;
-		FOVY = 60.0f; 
+		FOVY = 45.0f; 
 	        cameraAt = vec3(64,1,-64);
 	        cameraEye = vec3(0,2,0); 
+	        old_cameraEye = cameraEye;
+		old_cameraAt = cameraAt;
 		break;
 	       
+	       case 'x':
+		
+		       if (!birdsEye)
+		       {
+				xScale = yScale = zScale = 1.0f;
+				xRot = yRot = zRot = -0.5f;
+				xMove = yMove = zMove = 0.0f;
+				FOVY = 45.0f; 
+				old_cameraEye = vec3(cameraEye.x, cameraEye.y, cameraEye.z);
+				old_cameraAt = vec3(cameraAt.x, cameraAt.y, cameraAt.z);
+				cameraAt = vec3(32,1,-32);
+				cameraEye = vec3(0,60,0);
+
+				birdsEye = true;
+		       }
+		
+		break;
+	       
+	        case 'c':
+			xScale = yScale = zScale = 1.0f;
+			xRot = yRot = zRot = 0.0f;
+			xMove = yMove = zMove = -0.5f;
+			FOVY = 45.0f; 
+			
+			if (birdsEye)
+			{
+				
+				cameraAt = old_cameraAt;
+				cameraEye = old_cameraEye; 
+				
+				birdsEye = false;
+
+			}
+		       
 		case '=':
 		 FOVY += 1;
 		 break;
@@ -83,7 +133,7 @@ void keyboard(unsigned char key, int x, int y)
 		 break;
 		
 	      default:
-		 printf("Key '%c' pressed, mouse at (%d, %d).\n", key, x, y);
+		// printf("Key '%c' pressed, mouse at (%d, %d).\n", key, x, y);
 		 break;
 	}
 	
@@ -155,9 +205,6 @@ void mouseLook (int x, int y)
 	
 	GLfloat vRotation = verticalScale * 3.14f; //NB: 3.14f is 180 degrees in radions
 	GLfloat hRotation = horizontalScale * 3.14f;
-	
-	cout << "X Moved: " << xDistance << endl;
-	cout << "Y Moved: " << yDistance << endl;
 	
 	//calc current direction vector
 	vec3 direction = (cameraAt - cameraEye);
@@ -288,7 +335,6 @@ void checkKeys(vec3 d, vec3 r)
 		//cout << d << endl;
 		cameraEye += d;
 		cameraAt += d;
-		cout << "w is active" << endl;
 	}
 	else if (active_keys['s'])
 	{
@@ -542,11 +588,10 @@ void loadShaderProgram(unsigned& handle, const char* file, GLenum shaderType)
 
 void loadGeometry()
 {
-	//loadCube();
-	drawBoard2();
+	drawBoard();
 }
 
-void drawBoard2()
+void drawBoard()
 {
 	
     GLfloat* vertices = new GLfloat[VERTEX_ARRAY_SIZE];
@@ -637,8 +682,6 @@ void drawBoard2()
 	   }
    }
     #pragma GCC diagnostic pop
-   
-
 
    /* Declare our handles. */
    GLuint vertexBuffer, indexBuffer;
@@ -667,372 +710,9 @@ void drawBoard2()
          GL_FALSE,
          VERTEX_SIZE * (int)sizeof(GLfloat),
          (void*)(DIMENSIONS* (int)sizeof(GLfloat)));
-}
-
-void drawBoard()
-{
-	//TODO: Set up alternating colour somehow....
-	GLfloat* vertices = new GLfloat[VERTEX_ARRAY_SIZE];
-	int i = 0;
-	
-	float pZ = 0.0f;
-	float pX = 0.0f;
-	
-	//Fill vertices array
-	for(int zPos = 0; zPos <= 8; zPos++)
-	{
-		for(int xPos = 0; xPos <=8; xPos++)
-		{
-			vertices[i++] = pX;
-			vertices[i++] = 0.0f;
-			vertices[i++] = pZ;
-			
-			pX = pX + 1.0f;
-			cout << i << endl;
-		}
-		
-		pZ = pZ + 1.0f;;
-		pX = 0.0f;
-	}
-	
-	GLuint* indices = new GLuint[INDEX_ARRAY_SIZE];
-	i = 0;
-	
-	#pragma GCC diagnostic push
-	#pragma GCC diagnostic ignored "-Wsign-conversion"
-	//Fill indices array
-	for(int row = 0; row < 8; row++)
-	{
-		for(int col = (9*col); col < ((9*col) + 8); col++)
-		{
-			//first triangle
-			indices[i++] = col;
-			indices[i++] = col + 1;
-			indices[i++] = col + 9;
-			
-			//Second triangle
-			indices[i++] = col + 1;
-			indices[i++] = col + 10;
-			indices[i++] = col + 9;
-		}
-	}
-	#pragma GCC diagnostic pop
-	
-	//Possible Colours
-	GLfloat* colours = new GLfloat[6];
-	i = 0;
-	
-	GLfloat c = 0.0f;
-	
-	for (int j = 0; j < 2; j++)
-	{
-		colours[i++] = c;
-		colours[i++] = c;
-		colours[i++] = c;
-		
-		c = c + 1.0f;
-	}
-	
-	//Indices array for colours. Index per position vertex. i.e. 3 per triangle
-	GLuint* colourIndices = new GLuint[INDEX_ARRAY_SIZE];
-	i = 0;
-	
-	int colourPos = 0;
-	
-	#pragma GCC diagnostic push
-	#pragma GCC diagnostic ignored "-Wsign-conversion"
-	for(int row = 0; row < 8; row++)
-	{
-		for(int col = 0; col < 8; col++)
-		{
-			//first triangle
-			colourIndices[i++] = colourPos;
-			colourIndices[i++] = colourPos;
-			colourIndices[i++] = colourPos;
-			
-			//Second triangle
-			colourIndices[i++] = colourPos;
-			colourIndices[i++] = colourPos;
-			colourIndices[i++] = colourPos;
-			
-			if (colourPos == 0)
-			{
-				colourPos = 1;
-			}
-			else
-			{
-				colourPos = 0;
-			}
-		}
-	}
-	#pragma GCC diagnostic pop
-	
-	/*Create our Vertex Attribute Array Object (Mesh "Object")
-	 * 1. Number of Meshes (VAOs) we want
-	 * 2. Where to store their handle(s) (Array of GLuints or unsigned ints [or single])
-	 */
-	glGenVertexArrays(1, &board);
-	
-	//Now set the mesh (VAO) we have just created to be the one currently in use
-	glBindVertexArray(board);
-	
-	/*Now that our mesh is set as the current one, we can start to modify it. Think of the bind function
-		as the process of putting something into a desk clamp - once we have the mesh firmly
-			between its metal pincers, we are free to start cutting and measuring to our
-								hearts' content.*/
-								
-	/*Before we can set up the vertex arrays that will be associated with this mesh, we're going to put
-	* the vertex data into buffers. This is because we need an object (or a "class", depending on how you look at it)
-	* to handle writing all this data to the GPU and keeping track of it in memory etc.*/
-	
-	/*SET UP POSITION BUFFERS */
-	//--------------------------------------------*/
-	
-	//Create handle for buffer
-	GLuint posIndexBuffer, posVertexBuffer;
-	
-	//Create an openGL object called a Buffer Object
-	glGenBuffers(1, &posIndexBuffer);
-	//clamp the buffer object with the  target: GL_ELEMENT_ARRAY_BUFFER clamp. 
-	//This clamp (or "target" as openGL calls them) is used to specify things for our mesh.
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, posIndexBuffer);
-	
-	/*load data into our buffer
-	 * 1. Specify which "clamp" to load data into
-	 * 2. How much data (in bytes) we are loading into buffer i.e. size of  index array * amount of bytes taken up by the data type it stores [which is integer values values in this case]
-	 * 3. Provide the array from which we will load the actual data
-	 * 4. Give openGL a hint as to what we are going to do with the buffer. Since we arent going to read from it, or modify it, we will go with GL_STATIC_DRAW
-	 */
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, (GLsizeiptr)(INDEX_ARRAY_SIZE * sizeof(GLuint)), indices, GL_STATIC_DRAW);
-	
-	glGenBuffers(1, &posVertexBuffer);
-	glBindBuffer(GL_ARRAY_BUFFER, posVertexBuffer);
-	
-	/*Now we need to SPECIFY THE FORMAT of the data we just loaded into the buffer [VERY IMPORTANT]*/
-	
-	glBufferData(GL_ARRAY_BUFFER, (GLsizeiptr)(VERTEX_ARRAY_SIZE * sizeof(GLfloat)), vertices, GL_STATIC_DRAW);
-	
-	//We need to enable the position input so that openGL knows we intend to provide some input.
-	glEnableVertexAttribArray((GLuint)positionLoc);
-	/* Provide some input for the position attribute
-	 * 1. The input we are providing
-	 * 2. The amount of components for each vertex (each vertex has exactly three components in its position)
-	 * 3. Data type of our input
-	 * 4. Flag indicating whether the data provided is normalised
-	 * 5. Stride (The length of a step from one vertex to another)in bytes
-	 * 6. The offset (which is where the data we are passing in starts
-	 */
-	glVertexAttribPointer((GLuint)positionLoc, DIMENSIONS, GL_FLOAT, GL_FALSE, (GLsizei)(VERTEX_SIZE * sizeof(GLfloat)), 0);
-	
-	
-	/*SET UP COLOUR BUFFERS */
-	//--------------------------------------------*/
-	
-	//Create handle for buffer
-	GLuint colIndexBuffer, colVertexBuffer;
-	
-	//Create an openGL object called a Buffer Object
-	glGenBuffers(1, &colIndexBuffer);
-	//clamp the buffer object with the  target: GL_ELEMENT_ARRAY_BUFFER clamp. 
-	//This clamp (or "target" as openGL calls them) is used to specify things for our mesh.
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, colIndexBuffer);
-	
-	/*load data into our buffer
-	 * 1. Specify which "clamp" to load data into
-	 * 2. How much data (in bytes) we are loading into buffer i.e. size of  index array * amount of bytes taken up by the data type it stores [which is integer values values in this case]
-	 * 3. Provide the array from which we will load the actual data
-	 * 4. Give openGL a hint as to what we are going to do with the buffer. Since we arent going to read from it, or modify it, we will go with GL_STATIC_DRAW
-	 */
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, (GLsizeiptr)(INDEX_ARRAY_SIZE * sizeof(GLuint)), colourIndices, GL_STATIC_DRAW);
-	
-	glGenBuffers(1, &colVertexBuffer);
-	glBindBuffer(GL_ARRAY_BUFFER, colVertexBuffer);
-	
-	/*Now we need to SPECIFY THE FORMAT of the data we just loaded into the buffer [VERY IMPORTANT]*/
-	
-	glBufferData(GL_ARRAY_BUFFER, (GLsizeiptr)(6 * sizeof(GLfloat)), colours, GL_STATIC_DRAW);
-	
-	glEnableVertexAttribArray((GLuint)colourLoc);
-	/* Provide some input for the position attribute
-	 * 1. The input we are providing
-	 * 2. The amount of components for each vertex (each vertex has exactly three components in its colour)
-	 * 3. Data type of our input
-	 * 4. Flag indicating whether the data provided is normalised
-	 * 5. Stride (The length of a step from one vertex to another)in bytes
-	 * 6. The offset (which is where the data we are passing in starts
-	 */
-	glVertexAttribPointer((GLuint)colourLoc, COLOUR_COMPONENT_COUNT, GL_FLOAT, GL_FALSE, (GLsizei)(VERTEX_SIZE * sizeof(GLfloat)), 0);
-	
-	delete [] vertices;
-}
-
-void loadCube()
-{
-	GLfloat* vertices = new GLfloat[VERTEX_ARRAY_SIZE];
-	int i = 0;
-	
-	/**BOTTOM FACE**/
-	
-	//black
-	vertices[i++] = 0.0f;
-	vertices[i++] = 0.0f;
-	vertices[i++] = 0.0f;
-	
-	//blue
-	vertices[i++] = 0.0f;
-	vertices[i++] = 0.0f;
-	vertices[i++] = 1.0f;
-	
-	//magenta
-	vertices[i++] = 1.0f;
-	vertices[i++] = 0.0f;
-	vertices[i++] = 1.0f;
-	
-	//red
-	vertices[i++] = 1.0f;
-	vertices[i++] = 0.0f;
-	vertices[i++] = 0.0f;
-	
-	/**TOP FACE **/
-	
-	//green
-	vertices[i++] = 0.0f;
-	vertices[i++] = 1.0f;
-	vertices[i++] = 0.0f;
-	
-	//cyan
-	vertices[i++] = 0.0f;
-	vertices[i++] = 1.0f;
-	vertices[i++] = 1.0f;
-	
-	//white 
-	vertices[i++] = 1.0f;
-	vertices[i++] = 1.0f;
-	vertices[i++] = 1.0f;
-	
-	//yellow 
-	vertices[i++] = 1.0f;
-	vertices[i++] = 1.0f;
-	vertices[i++] = 0.0f;
-	
-	GLuint* indices = new GLuint[INDEX_ARRAY_SIZE];
-	i = 0;
-	
-	//Left Face
-	indices[i++] = 0;
-	indices[i++] = 5;
-	indices[i++] = 4;
-	indices[i++] = 0;
-	indices[i++] = 1;
-	indices[i++] = 5;
-	
-	//Right Face
-	indices[i++] = 2;
-	indices[i++] = 7;
-	indices[i++] = 6;
-	indices[i++] = 2;
-	indices[i++] = 3;
-	indices[i++] = 7;
-	
-	//Front Face
-	indices[i++] = 1;
-	indices[i++] = 6;
-	indices[i++] = 5;
-	indices[i++] = 1;
-	indices[i++] = 2;
-	indices[i++] = 6;
-	
-	//Back Face
-	indices[i++] = 3;
-	indices[i++] = 4;
-	indices[i++] = 7;
-	indices[i++] = 3;
-	indices[i++] = 0;
-	indices[i++] = 4;
-	
-	//Top Face
-	indices[i++] = 5;
-	indices[i++] = 7;
-	indices[i++] = 4;
-	indices[i++] = 5;
-	indices[i++] = 6;
-	indices[i++] = 7;
-	
-	//Bottom Face
-	indices[i++] = 2;
-	indices[i++] = 1;
-	indices[i++] = 0;
-	indices[i++] = 2;
-	indices[i++] = 0;
-	indices[i++] = 3;
-	
-	
-	/*Create our Vertex Attribute Array Object (Mesh "Object")
-	 * 1. Number of Meshes (VAOs) we want
-	 * 2. Where to store their handle(s) (Array of GLuints or unsigned ints [or single])
-	 */
-	glGenVertexArrays(1, &cube);
-	
-	//Now set the mesh (VAO) we have just created to be the one currently in use
-	glBindVertexArray(cube);
-	
-	/*Now that our mesh is set as the current one, we can start to modify it. Think of the bind function
-		as the process of putting something into a desk clamp - once we have the mesh firmly
-			between its metal pincers, we are free to start cutting and measuring to our
-								hearts' content.*/
-								
-	/*Before we can set up the vertex arrays that will be associated with this mesh, we're going to put
-	* the vertex data into buffers. This is because we need an object (or a "class", depending on how you look at it)
-	* to handle writing all this data to the GPU and keeping track of it in memory etc.*/
-	
-	//Create handle for buffer
-	GLuint indexBuffer, vertexBuffer;
-	
-	//Create an openGL object called a Buffer Object
-	glGenBuffers(1, &indexBuffer);
-	//clamp the buffer object with the  target: GL_ELEMENT_ARRAY_BUFFER clamp. 
-	//This clamp (or "target" as openGL calls them) is used to specify things for our mesh.
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBuffer);
-	
-	/*load data into our buffer
-	 * 1. Specify which "clamp" to load data into
-	 * 2. How much data (in bytes) we are loading into buffer i.e. size of  index array * amount of bytes taken up by the data type it stores [which is integer values values in this case]
-	 * 3. Provide the array from which we will load the actual data
-	 * 4. Give openGL a hint as to what we are going to do with the buffer. Since we arent going to read from it, or modify it, we will go with GL_STATIC_DRAW
-	 */
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, (GLsizeiptr)(INDEX_ARRAY_SIZE * sizeof(GLuint)), indices, GL_STATIC_DRAW);
-	
-	glGenBuffers(1, &vertexBuffer);
-	glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
-	
-	/*Now we need to SPECIFY THE FORMAT of the data we just loaded into the buffer [VERY IMPORTANT]*/
-	
-	glBufferData(GL_ARRAY_BUFFER, (GLsizeiptr)(VERTEX_ARRAY_SIZE * sizeof(GLfloat)), vertices, GL_STATIC_DRAW);
-	
-	//We need to enable the position input so that openGL knows we intend to provide some input.
-	glEnableVertexAttribArray((GLuint)positionLoc);
-	/* Provide some input for the position attribute
-	 * 1. The input we are providing
-	 * 2. The amount of components for each vertex (each vertex has exactly three components in its position)
-	 * 3. Data type of our input
-	 * 4. Flag indicating whether the data provided is normalised
-	 * 5. Stride (The length of a step from one vertex to another)in bytes
-	 * 6. The offset (which is where the data we are passing in starts
-	 */
-	glVertexAttribPointer((GLuint)positionLoc, DIMENSIONS, GL_FLOAT, GL_FALSE, (GLsizei)(VERTEX_SIZE * sizeof(GLfloat)), 0);
-	
-	glEnableVertexAttribArray((GLuint)colourLoc);
-	/* Provide some input for the position attribute
-	 * 1. The input we are providing
-	 * 2. The amount of components for each vertex (each vertex has exactly three components in its colour)
-	 * 3. Data type of our input
-	 * 4. Flag indicating whether the data provided is normalised
-	 * 5. Stride (The length of a step from one vertex to another)in bytes
-	 * 6. The offset (which is where the data we are passing in starts
-	 */
-	glVertexAttribPointer((GLuint)colourLoc, COLOUR_COMPONENT_COUNT, GL_FLOAT, GL_FALSE, (GLsizei)(VERTEX_SIZE * sizeof(GLfloat)), 0);
-	
-	delete [] vertices;
+	 
+	 delete [] vertices;
+	 delete [] indices;
 }
 
 GLint findAttribute(const char* name)
@@ -1087,6 +767,18 @@ int main (int argc, char** argv)
 	glutPassiveMotionFunc(mouseLook);
 	glutReshapeFunc(reshape);
 	glutIdleFunc(idle);
+	
+	cout << "CONTROLS: " << endl;
+	cout << endl;
+	cout << "w: Forward" << endl;
+	cout << "s: Backward" << endl;
+	cout << "a: Left" << endl;
+	cout << "d: Right" << endl;
+	cout << "z: Position camera at default position" << endl;
+	cout << "x: Bird's Eye View" << endl;
+	cout << "c: First Person View" << endl;
+	cout << "h: help" << endl;
+	cout << endl;
 	
 
 	initGLEW();

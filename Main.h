@@ -69,6 +69,8 @@ int MILLISECONDS_PER_SECOND = 1000;
 
 int last_print;
 
+bool birdsEye = false;
+
 //SCALE MATRIX VARIABLES
 
 /*
@@ -147,6 +149,20 @@ GLfloat NEAR = 1.0f;
  */
 GLfloat FAR = -100.0f;
 
+/*
+ * PREVIOUS VIEW MATRIX VARIABLES
+ */
+ 
+ /*
+ * The position of the camera
+ */
+ vec3 old_cameraEye(0,2,0); 
+ 
+ /*
+ * The direction (vector) the camera is looking
+ */
+ vec3 old_cameraAt(64,1,-64);
+
 /* HANDLES*/
 
 /* 
@@ -208,8 +224,6 @@ GLint viewLoc;
  *Handle for the projection matrix uniform. 
  */
 GLint projectionLoc;
-	
-
 
 
 /*METHODS*/
