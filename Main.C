@@ -139,6 +139,27 @@ void mouse(int button, int state, int x, int y)
 	cout << "at [" << x << ", " << y << "] " << endl;
 }
 
+void mouseLook (int x, int y)
+{
+	int horizontal_centre = WINDOW_WIDTH / 2;
+	int vertical_centre = WINDOW_HEIGHT / 2;
+	
+	const int xDistance = -(x - horizontal_centre); //negated because positive rotation is ant-clockwise
+	const int yDistance = -(y - vertical_centre);
+	
+	cout << "X Moved: " << xDistance << endl;
+	cout << "Y Moved: " << yDistance << endl;
+	
+	//calc current direction vector
+	vec3 direction = (cameraAt - cameraEye);
+	
+	//calculate current right vector
+	vec3 right = cross(direction, cameraUp);
+	
+	//We can thus rotate around the "y-axis" (CameraUp) for left/right looking
+	//We can thus rotate around the "x-axis" (right) for up/down looking
+}
+
 void reshape(int newWidth, int newHeight)
 {
 	//Fix our viewport
@@ -1027,13 +1048,14 @@ int main (int argc, char** argv)
 	//and use a colour screen
 	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
 	
-	glutInitWindowSize(640, 480); //Size of the window we would like
+	glutInitWindowSize(WINDOW_WIDTH, WINDOW_HEIGHT); //Size of the window we would like
 	glutCreateWindow("COS344_Assignment_1");//Set title of the window
 	
 	glutDisplayFunc(display); //Register Display Event/ Callback
 	glutKeyboardFunc(keyboard);
 	glutKeyboardUpFunc(keyboardUp);
 	glutMouseFunc(mouse);
+	glutPassiveMotionFunc(mouseLook);
 	glutReshapeFunc(reshape);
 	glutIdleFunc(idle);
 	

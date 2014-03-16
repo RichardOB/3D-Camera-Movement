@@ -233,6 +233,9 @@ void keyboard(unsigned char, int, int);
  */
 void mouse(int, int, int, int);
 
+
+void mouseLook (int x, int y);
+
 /**
  * GLUT reshape callback function.
  *
