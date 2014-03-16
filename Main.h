@@ -59,6 +59,7 @@ const GLfloat SCALE = 0.1f;
 
 /*VARIABLES*/
 
+bool active_keys[256];
 
 int last_frame;
 
@@ -123,7 +124,7 @@ GLfloat zMove = -0.5f;
  /*
  * The direction (vector) the camera is looking
  */
- vec3 cameraAt(64,0,-64);
+ vec3 cameraAt(64,1,-64);
  
  /*
  * The up direction (vector) for the camera
@@ -218,10 +219,14 @@ GLint projectionLoc;
  */
 void display();
 
+void keyboardUp(unsigned char key, int x, int y);
+
 /**
  * GLUT keyboard callback function.
  */
 void keyboard(unsigned char, int, int);
+
+
 
 /**
  * GLUT mouse callback function.
@@ -278,6 +283,12 @@ void printFPS();
  * GLUT idle callback function. Continuously called when there are no other events.
  */
 void idle();
+
+/*
+ * Check active_keys and adjust view matrix accordingly
+ */
+void checkKeys(vec3, vec3);
+
 
 /**
  * GLUT idle callback function. Continuously called when there are no other events.

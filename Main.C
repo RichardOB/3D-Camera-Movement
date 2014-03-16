@@ -46,112 +46,52 @@ void display ()
 	last_frame = getTime();
 }
 
+#pragma GCC diagnostic ignored "-Wunused-parameter"
+void keyboardUp(unsigned char key, int x, int y)
+{
+	active_keys[key] = false;
+}
+#pragma GCC diagnostic error "-Wunused-parameter"
+
+#pragma GCC diagnostic ignored "-Wunused-parameter"
 void keyboard(unsigned char key, int x, int y)
 {
-    switch (key)
-   {
-      case 'w':
-         xRot += ANGLE_DELTA;
-         break;
-      
-      case 's':
-         xRot -= ANGLE_DELTA;
-         break;
-      
-      case 'a':
-         yRot += ANGLE_DELTA;
-         break;
-      
-      case 'd':
-         yRot -= ANGLE_DELTA;
-         break;
-      
-       case 'q':
-         zRot += ANGLE_DELTA;
-         break;
-       
-      case 'e':
-         zRot -= ANGLE_DELTA;
-         break;
-      
-      case 'h':
-	xMove += SCALE;
-	break;
-      
-      case 'f':
-	xMove -= SCALE;
-	break;
-      
-      case 't':
-	yMove += SCALE;
-	break;
-      
-      case 'g':
-	yMove -= SCALE;
-	break;
-      
-      case 'r':
-	zMove += SCALE;
-	break;
-      
-      case 'y':
-	zMove -= SCALE;
-	break;
-      
-       case 'i':
-	yScale += SCALE;
-	break;
-       
-       case 'k':
-	yScale -= SCALE;
-	break;
-       
-       case 'j':
-	xScale += SCALE;
-	break;
-       
-       case 'l':
-	xScale -= SCALE;
-	break;
-       
-       case 'u':
-	zScale += SCALE;
-	break;
-       
-       case 'o':
-	zScale -= SCALE;
-	break;
-       
-       case 'z':
-	xScale = yScale = zScale = 1.0f;
-        xRot = yRot = zRot = 0.0f;
-        xMove = yMove = zMove = -0.5f;
-        FOVY = 60.0f; 
-	break;
-       
-	case '=':
-         FOVY += 1;
-         break;
+	active_keys[key] = true;
 	
-	case '-':
-         FOVY -= 1;
-         break;
-	
-	case KEY_ESCAPE:
-         printf("Bye!\n");
-         exit(0);
-         break;
-	
-      default:
-         printf("Key '%c' pressed, mouse at (%d, %d).\n", key, x, y);
-         break;
-   }
+	switch (key)
+	{
+	       case 'z':
+		xScale = yScale = zScale = 1.0f;
+		xRot = yRot = zRot = 0.0f;
+		xMove = yMove = zMove = -0.5f;
+		FOVY = 60.0f; 
+		break;
+	       
+		case '=':
+		 FOVY += 1;
+		 break;
+		
+		case '-':
+		 FOVY -= 1;
+		 break;
+		
+		case KEY_ESCAPE:
+		 printf("Bye!\n");
+		 exit(0);
+		 break;
+		
+	      default:
+		 printf("Key '%c' pressed, mouse at (%d, %d).\n", key, x, y);
+		 break;
+	}
 	
 	updateWorld();
+	updateView();
 	updateProjection(WINDOW_WIDTH, WINDOW_HEIGHT);
 	glutPostRedisplay();
-
 }
+#pragma GCC diagnostic error "-Wunused-parameter"
+
 
 void mouse(int button, int state, int x, int y)
 {
@@ -273,15 +213,55 @@ void printFPS()
 
 void idle()
 {
-	int now = getTime();
-	int deltaT = now - last_frame;
+	const int now = getTime();
+	const int deltaT = now - last_frame;
+	const GLfloat seconds = (GLfloat)deltaT / (GLfloat)MILLISECONDS_PER_SECOND; //Get deltaT in seconds
+	const GLfloat step = seconds * 10.0f;
+	
 	
 	if (deltaT >= TARGET_DELTA_T)
 	{
+		vec3 d = step  + 0.1f * glm::normalize(cameraAt - cameraEye);
+		vec3 r = 0.1f * glm::normalize(glm::cross(d, cameraUp));
+		
+		checkKeys(d, r);
+		
 		//Queue up a new frame. Ask GLUT for a redraw.
 		glutPostRedisplay();
 	}
 
+}
+
+void checkKeys(vec3 d, vec3 r)
+{
+	if (active_keys['w'])
+	{
+		//cout << d << endl;
+		cameraEye += d;
+		cameraAt += d;
+		cout << "w is active" << endl;
+	}
+	else if (active_keys['s'])
+	{
+		//cout << d << endl;
+		cameraEye -= d;
+		cameraAt -= d;
+	}
+	
+	if (active_keys['d'])
+	{
+		cameraEye += r;
+		cameraAt += r;
+	}
+	else if (active_keys['a'])
+	{
+		cameraEye -= r;
+		cameraAt -= r;
+	}
+	
+	
+	updateView();
+	glutPostRedisplay();
 }
 
 void initGLEW()
@@ -298,6 +278,9 @@ void initGLEW()
 
 void init ()
 {
+	last_print = getTime();
+	last_frame = getTime();
+	
 	glEnable(GL_VERTEX_ARRAY);//?
 	//switch on Depth Testing to ensure that if something is behind something, it does not show
 	glEnable(GL_DEPTH_TEST);
@@ -329,8 +312,7 @@ void init ()
 	
 	glBindVertexArray(cube);
 	
-	last_print = getTime();
-	last_frame = getTime();
+	
 }
 
 char* loadFile(const char* fileName)
@@ -1050,9 +1032,11 @@ int main (int argc, char** argv)
 	
 	glutDisplayFunc(display); //Register Display Event/ Callback
 	glutKeyboardFunc(keyboard);
+	glutKeyboardUpFunc(keyboardUp);
 	glutMouseFunc(mouse);
 	glutReshapeFunc(reshape);
 	glutIdleFunc(idle);
+	
 
 	initGLEW();
 	init();
