@@ -65,6 +65,8 @@ void keyboard(unsigned char key, int x, int y)
 		xRot = yRot = zRot = 0.0f;
 		xMove = yMove = zMove = -0.5f;
 		FOVY = 60.0f; 
+	        cameraAt = vec3(64,1,-64);
+	        cameraEye = vec3(0,2,0); 
 		break;
 	       
 		case '=':
@@ -147,6 +149,13 @@ void mouseLook (int x, int y)
 	const int xDistance = -(x - horizontal_centre); //negated because positive rotation is ant-clockwise
 	const int yDistance = -(y - vertical_centre);
 	
+	//We need to find our angle of rotation (max 180 degrees) by scaling max rotation (180) with the ratio of screen moved from centre
+	GLfloat horizontalScale = (GLfloat) xDistance / (GLfloat) horizontal_centre;
+	GLfloat verticalScale = (GLfloat) yDistance / (GLfloat) vertical_centre;
+	
+	GLfloat vRotation = verticalScale * 3.14f; //NB: 3.14f is 180 degrees in radions
+	GLfloat hRotation = horizontalScale * 3.14f;
+	
 	cout << "X Moved: " << xDistance << endl;
 	cout << "Y Moved: " << yDistance << endl;
 	
@@ -154,10 +163,29 @@ void mouseLook (int x, int y)
 	vec3 direction = (cameraAt - cameraEye);
 	
 	//calculate current right vector
-	vec3 right = cross(direction, cameraUp);
+	vec3 right = glm::cross(direction, cameraUp);//will always stay horizontal
 	
 	//We can thus rotate around the "y-axis" (CameraUp) for left/right looking
 	//We can thus rotate around the "x-axis" (right) for up/down looking
+	
+	mat4 rotation; //create empty 4x4 rotation matrix
+	rotation = glm::rotate (rotation, hRotation, cameraUp);
+	rotation = glm::rotate (rotation, vRotation, right);
+	
+	glm::vec4 d (direction.x, direction.y, direction.z, 0.0f);//create a vec4 direction vector so that we can rotate it
+	
+	d = rotation * d;
+	
+	cameraAt = cameraEye + vec3(d.x, d.y, d.z);
+	
+	//Trap mouse in the window
+	if ((xDistance!= 0) || (yDistance != 0))
+	{
+		//each call to this function generates another motion event.
+		//Therefore if we do not check if the mouse has moved from centre, this will be continuously called, allowing for no possible mouse movement
+		glutWarpPointer(horizontal_centre, vertical_centre);
+	}
+	
 }
 
 void reshape(int newWidth, int newHeight)
@@ -1052,6 +1080,7 @@ int main (int argc, char** argv)
 	glutCreateWindow("COS344_Assignment_1");//Set title of the window
 	
 	glutDisplayFunc(display); //Register Display Event/ Callback
+	glutSetCursor(GLUT_CURSOR_NONE);
 	glutKeyboardFunc(keyboard);
 	glutKeyboardUpFunc(keyboardUp);
 	glutMouseFunc(mouse);
